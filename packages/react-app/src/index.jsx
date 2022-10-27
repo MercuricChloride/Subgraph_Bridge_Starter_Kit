@@ -4,6 +4,8 @@ import { ThemeSwitcherProvider } from "react-css-theme-switcher";
 import ReactDOM from "react-dom";
 import App from "./App";
 import "./index.css";
+import { RecoilRoot } from "recoil";
+import { Spin } from "antd";
 
 const themes = {
   dark: `${process.env.PUBLIC_URL}/dark-theme.css`,
@@ -22,7 +24,11 @@ const client = new ApolloClient({
 ReactDOM.render(
   <ApolloProvider client={client}>
     <ThemeSwitcherProvider themeMap={themes} defaultTheme={prevTheme || "light"}>
-      <App subgraphUri={subgraphUri} />
+      <RecoilRoot>
+        <React.Suspense fallback={<Spin />}>
+          <App subgraphUri={subgraphUri} />
+        </React.Suspense>
+      </RecoilRoot>
     </ThemeSwitcherProvider>
   </ApolloProvider>,
   document.getElementById("root"),

@@ -9,15 +9,31 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   const { deployer } = await getNamedAccounts();
   const chainId = await getChainId();
 
-  await deploy("YourContract", {
+  const goerliStakingAddress = "0x35e3Cb6B317690d662160d5d02A5b364578F62c9";
+  const goerliDisputeManager = "0x8c344366D9269174F10bB588F16945eb47f78dc9";
+
+  await deploy("SubgraphBridge", {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
-    // args: [ "Hello", ethers.utils.parseEther("1.5") ],
+    args: [
+      goerliStakingAddress,
+      goerliDisputeManager,
+    ],
     log: true,
   });
 
+  const SubgraphBridge = await ethers.getContract("SubgraphBridge");
+
+  await deploy("YourContract", {
+    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
+    from: deployer,
+    args: [SubgraphBridge.address],
+    log: true,
+  });
+
+  const YourContract = await ethers.getContract("YourContract");
+
   // Getting a previously deployed contract
-  const YourContract = await ethers.getContract("YourContract", deployer);
   /*  await YourContract.setPurpose("Hello");
   
     To take ownership of yourContract using the ownable library uncomment next line and add the 
@@ -53,12 +69,22 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
 
   // Verify your contracts with Etherscan
   // You don't want to verify on localhost
-  if (chainId !== localChainId) {
-    await run("verify:verify", {
-      address: YourContract.address,
-      contract: "contracts/YourContract.sol:YourContract",
-      contractArguments: [],
-    });
-  }
+  // if (chainId !== localChainId) {
+  //   await run("verify:verify", {
+  //     address: SubgraphBridge.address,
+  //     contract: "contracts/SubgraphBridge.sol:SubgraphBridge",
+  //     contractArguments: [
+  //       goerliDisputeManager,
+  //       goerliStakingAddress,
+  //     ],
+  //   });
+  //   await run("verify:verify", {
+  //     address: YourContract.address,
+  //     contract: "contracts/YourContract.sol:YourContract",
+  //     contractArguments: [
+  //       SubgraphBridge.address,
+  //     ],
+  //   });
+  // }
 };
 module.exports.tags = ["YourContract"];
